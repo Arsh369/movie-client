@@ -7,6 +7,7 @@ import {
   useDeleteMovieMutation,
 } from "../../redux/api/movies";
 import { toast } from "react-toastify";
+import GoBackButton from "../../component/GoBackButton";
 
 const UpdateMovie = () => {
   const { id } = useParams();

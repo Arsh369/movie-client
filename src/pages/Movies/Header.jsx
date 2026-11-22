@@ -6,8 +6,8 @@ const Header = () => {
   const { data } = useGetNewMoviesQuery();
 
   return (
-    <header className="bg-slate-950 text-slate-100">
-      <div className="mx-auto max-w-7xl px-4 pt-6 pb-4 sm:px-6 lg:px-8">
+    <header className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+      <div className="flex flex-col gap-8 lg:flex-row lg:items-start">
         <div className="flex flex-col gap-6 lg:grid lg:grid-cols-12 lg:items-start lg:gap-8">
           {/* Quick Header Navigation */}
           <nav

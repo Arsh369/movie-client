@@ -6,6 +6,7 @@ import {
 } from "../../redux/api/movies";
 import { useFetchGenresQuery } from "../../redux/api/genre";
 import { toast } from "react-toastify";
+import GoBackButton from "../../component/GoBackButton";
 
 const CreateMovie = () => {
   const navigate = useNavigate();
@@ -159,6 +160,7 @@ const CreateMovie = () => {
     <div className="min-h-screen bg-slate-950 text-slate-100">
       <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Header */}
+        <GoBackButton/>
         <div className="mb-8 border-b border-slate-800/80 pb-6">
           <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
             Create Movie

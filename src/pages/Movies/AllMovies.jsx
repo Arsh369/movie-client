@@ -14,7 +14,8 @@ import {
   setUniqueYears,
 } from "../../redux/features/movies/moviesSlice";
 import MovieCard from "./MovieCard";
-import banner from "../../assets/banner.jpg";
+import banner from "../../assets/banner.jpeg";
+import GoBackButton from "../../component/GoBackButton";
 
 const AllMovies = () => {
   const dispatch = useDispatch();
@@ -114,13 +115,14 @@ const AllMovies = () => {
   );
 
   return (
-    <div className="min-h-screen bg-slate-950 pb-24 text-slate-100">
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <GoBackButton/>
       {/* Hero Banner */}
-      <section className="relative flex min-h-[26rem] w-full items-center justify-center overflow-hidden border-b border-slate-800/80 bg-slate-900 sm:min-h-[30rem]">
+      <section className="relative flex px-9 min-h-[26rem] w-full items-center justify-center overflow-hidden border-b border-slate-800/80 sm:min-h-[30rem]">
         <img
           src={banner}
           alt="Movies Hub cinematic banner"
-          className="absolute inset-0 h-full w-full object-cover object-center"
+          className="absolute inset-0 h-full w-full object-cover object-top px-9"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/70 to-slate-950/45" />
 

@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import Loader from "../../component/Loader";
 import { useProfileMutation } from "../../redux/api/users";
 import { setCredentials } from "../../redux/features/auth/authSlice";
+import GoBackButton from "../../component/GoBackButton";
 
 const Profile = () => {
   const [username, setUsername] = useState("");
@@ -56,8 +57,10 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100">
+      
       <div className="mx-auto flex min-h-screen max-w-2xl flex-col justify-center px-4 py-12 sm:px-6 lg:px-8">
         {/* Account Summary Header */}
+        <div><GoBackButton/></div>
         <div className="mb-8 flex items-center gap-4 border-b border-slate-800/80 pb-6">
           <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-amber-500/30 bg-amber-500/10 text-xl font-extrabold text-amber-400">
             {userInitial}

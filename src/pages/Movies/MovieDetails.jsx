@@ -7,6 +7,7 @@ import {
   useAddMovieReviewMutation,
 } from "../../redux/api/movies";
 import MovieTabs from "./MovieTabs";
+import GoBackButton from "../../component/GoBackButton";
 
 const MovieDetails = () => {
   const { id: movieId } = useParams();
@@ -41,16 +42,7 @@ const MovieDetails = () => {
     <div className="min-h-screen bg-slate-950 pb-24 text-slate-100">
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Back Navigation */}
-        <div className="mb-6">
-          <Link
-            to="/"
-            className="inline-flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900/80 px-4 py-2 text-sm font-semibold text-slate-200 transition hover:border-amber-500/50 hover:text-amber-400"
-          >
-            <span>←</span>
-            <span>Go Back</span>
-          </Link>
-        </div>
-
+        <GoBackButton/>
         {/* Hero Artwork Card */}
         <div className="overflow-hidden rounded-3xl border border-slate-800/80 bg-slate-900 shadow-2xl shadow-black/50">
           <div className="relative aspect-video w-full overflow-hidden bg-slate-950 sm:max-h-[34rem]">

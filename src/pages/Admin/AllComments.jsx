@@ -4,6 +4,7 @@ import {
   useGetAllMoviesQuery,
 } from "../../redux/api/movies";
 import { toast } from "react-toastify";
+import GoBackButton from "../../component/GoBackButton";
 
 const AllComments = () => {
   const { data: movies, refetch } = useGetAllMoviesQuery();
@@ -31,6 +32,7 @@ const AllComments = () => {
     <div className="min-h-screen bg-slate-950 text-slate-100">
       <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Header */}
+        <GoBackButton/>
         <div className="mb-8 flex flex-col gap-3 border-b border-slate-800/80 pb-6 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
