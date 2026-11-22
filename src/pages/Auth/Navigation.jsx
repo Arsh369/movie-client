@@ -1,12 +1,11 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   AiOutlineHome,
   AiOutlineLogin,
   AiOutlineUserAdd,
 } from "react-icons/ai";
 import { MdOutlineLocalMovies } from "react-icons/md";
-import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { useLogoutMutation } from "../../redux/api/users";
 import { logout } from "../../redux/features/auth/authSlice";
@@ -14,9 +13,10 @@ import { logout } from "../../redux/features/auth/authSlice";
 const Navigation = () => {
   const { userInfo } = useSelector((state) => state.auth);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
 
   const toggleDropdown = () => {
-    setDropdownOpen(!dropdownOpen);
+    setDropdownOpen((prev) => !prev);
   };
 
   const dispatch = useDispatch();
@@ -24,10 +24,32 @@ const Navigation = () => {
 
   const [logoutApiCall] = useLogoutMutation();
 
+  useEffect(() => {
+    if (!dropdownOpen) return;
+
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+    };
+
+    const handleEscape = (event) => {
+      if (event.key === "Escape") setDropdownOpen(false);
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscape);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [dropdownOpen]);
+
   const logoutHandler = async () => {
     try {
       await logoutApiCall().unwrap();
       dispatch(logout());
+      setDropdownOpen(false);
       navigate("/login");
     } catch (error) {
       console.error(error);
@@ -35,123 +57,158 @@ const Navigation = () => {
   };
 
   return (
-    <div className="fixed bottom-10 left-[30rem] transform translate-x-1/2 translate-y-1/2 z-50 bg-[#0f0f0f] border w-[30%] px-[4rem] mb-[2rem] rounded">
-      <section className="flex justify-between items-center">
-        {/* Section 1 */}
-        <div className="flex justify-center items-center mb-[2rem]">
-          <Link
+    <nav
+      aria-label="Primary navigation"
+      className="fixed bottom-5 left-1/2 z-50 w-[calc(100%-2rem)] max-w-md -translate-x-1/2"
+    >
+      <div className="flex items-center justify-between gap-2 rounded-2xl border border-slate-800/90 bg-slate-900/90 px-3 py-2 text-slate-100 shadow-2xl shadow-black/70 backdrop-blur-md">
+        {/* Primary Routes */}
+        <div className="flex items-center gap-1.5">
+          <NavLink
             to="/"
-            className="flex items-center transition-transform transform hover:translate-x-2"
+            end
+            className={({ isActive }) =>
+              `inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-sm font-semibold transition-all duration-200 ${
+                isActive
+                  ? "bg-amber-500 text-slate-950 shadow-sm shadow-amber-500/25"
+                  : "text-slate-300 hover:bg-slate-800 hover:text-white"
+              }`
+            }
           >
-            <AiOutlineHome className="mr-2 mt-[3rem]" size={26} />
-            <span className="hidden nav-item-name mt-[3rem]">Home</span>
-          </Link>
+            <AiOutlineHome size={20} />
+            <span>Home</span>
+          </NavLink>
 
-          <Link
+          <NavLink
             to="/movies"
-            className="flex items-center transition-transform transform hover:translate-x-2 ml-[1rem]"
+            className={({ isActive }) =>
+              `inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-sm font-semibold transition-all duration-200 ${
+                isActive
+                  ? "bg-amber-500 text-slate-950 shadow-sm shadow-amber-500/25"
+                  : "text-slate-300 hover:bg-slate-800 hover:text-white"
+              }`
+            }
           >
-            <MdOutlineLocalMovies className="mr-2 mt-[3rem]" size={26} />
-            <span className="hidden nav-item-name mt-[3rem]">SHOP</span>
-          </Link>
+            <MdOutlineLocalMovies size={20} />
+            <span>Movies</span>
+          </NavLink>
         </div>
-        {/* Section 2 */}
-        <div className="relative">
-          <button
-            onClick={toggleDropdown}
-            className="text-gray-800 focus:outline-none"
-          >
-            {userInfo ? (
-              <span className="text-white">{userInfo.username}</span>
-            ) : (
-              <></>
-            )}
 
-            {userInfo && (
+        {/* Divider */}
+        <div className="h-6 w-px bg-slate-800" aria-hidden="true" />
+
+        {/* Account / Auth Controls */}
+        {userInfo ? (
+          <div ref={dropdownRef} className="relative">
+            <button
+              type="button"
+              onClick={toggleDropdown}
+              aria-expanded={dropdownOpen}
+              aria-haspopup="menu"
+              className="inline-flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-950/80 px-3 py-2 text-sm font-semibold text-slate-100 transition hover:border-amber-500/50 hover:text-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-500/40"
+            >
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-500/15 text-xs font-bold text-amber-400">
+                {userInfo.username?.charAt(0)?.toUpperCase() || "U"}
+              </span>
+              <span className="max-w-[6.5rem] truncate">
+                {userInfo.username}
+              </span>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className={`h-4 w-4 ml-1 ${
-                  dropdownOpen ? "transform rotate-180" : ""
+                className={`h-4 w-4 text-slate-400 transition-transform duration-200 ${
+                  dropdownOpen ? "rotate-180 text-amber-400" : ""
                 }`}
                 fill="none"
                 viewBox="0 0 24 24"
-                stroke="white"
+                stroke="currentColor"
               >
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth="2"
-                  d={dropdownOpen ? "M5 15l7-7 7 7" : "M19 9l-7 7-7-7"}
+                  d="M5 15l7-7 7 7"
                 />
               </svg>
-            )}
-          </button>
+            </button>
 
-          {dropdownOpen && userInfo && (
-            <ul
-              className={`absolute right-0 mt-2 mr-14 w-[10rem] space-y-2 bg-white text-gray-600 ${
-                !userInfo.isAdmin ? "-top-20" : "-top-24"
-              }`}
-            >
-              {userInfo.isAdmin && (
-                <>
-                  <li>
+            {dropdownOpen && (
+              <ul
+                role="menu"
+                className="absolute bottom-full right-0 mb-3 w-48 overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/95 p-1.5 text-sm text-slate-200 shadow-2xl shadow-black/70 backdrop-blur-md"
+              >
+                {userInfo.isAdmin && (
+                  <li role="none">
                     <Link
+                      role="menuitem"
                       to="/admin/movies/dashboard"
-                      className="block px-4 py-2 hover:bg-gray-100"
+                      onClick={() => setDropdownOpen(false)}
+                      className="block rounded-xl px-3.5 py-2 font-medium text-amber-400 transition hover:bg-slate-800 hover:text-amber-300"
                     >
                       Dashboard
                     </Link>
                   </li>
-                </>
-              )}
+                )}
 
-              <li>
-                <Link
-                  to="/profile"
-                  className="block px-4 py-2 hover:bg-gray-100"
-                >
-                  Profile
-                </Link>
-              </li>
+                <li role="none">
+                  <Link
+                    role="menuitem"
+                    to="/profile"
+                    onClick={() => setDropdownOpen(false)}
+                    className="block rounded-xl px-3.5 py-2 font-medium transition hover:bg-slate-800 hover:text-white"
+                  >
+                    Profile
+                  </Link>
+                </li>
 
-              <li>
-                <button
-                  onClick={logoutHandler}
-                  className="block w-full px-4 py-2 text-left hover:bg-gray-100"
+                <li
+                  role="none"
+                  className="my-1 border-t border-slate-800/80 pt-1"
                 >
-                  Logout
-                </button>
-              </li>
-            </ul>
-          )}
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={logoutHandler}
+                    className="block w-full rounded-xl px-3.5 py-2 text-left font-medium text-red-400 transition hover:bg-red-500/10 hover:text-red-300"
+                  >
+                    Logout
+                  </button>
+                </li>
+              </ul>
+            )}
+          </div>
+        ) : (
+          <div className="flex items-center gap-1.5">
+            <NavLink
+              to="/login"
+              className={({ isActive }) =>
+                `inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-semibold transition-all duration-200 ${
+                  isActive
+                    ? "bg-amber-500 text-slate-950 shadow-sm shadow-amber-500/25"
+                    : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                }`
+              }
+            >
+              <AiOutlineLogin size={19} />
+              <span>Login</span>
+            </NavLink>
 
-          {!userInfo && (
-            <ul className="flex">
-              <li>
-                <Link
-                  to="/login"
-                  className="flex items-center mt-5 transition-transform transform hover:translate-x-2 mb-[2rem]"
-                >
-                  <AiOutlineLogin className="mr-2 mt-[4px]" size={26} />
-                  <span className="hidden nav-item-name">LOGIN</span>
-                </Link>
-              </li>
-
-              <li>
-                <Link
-                  to="/register"
-                  className="flex items-center mt-5 transition-transform transform hover:translate-x-2 ml-[1rem]"
-                >
-                  <AiOutlineUserAdd size={26} />
-                  <span className="hidden nav-item-name">REGISTER</span>
-                </Link>
-              </li>
-            </ul>
-          )}
-        </div>
-      </section>
-    </div>
+            <NavLink
+              to="/register"
+              className={({ isActive }) =>
+                `inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-semibold transition-all duration-200 ${
+                  isActive
+                    ? "bg-amber-500 text-slate-950 shadow-sm shadow-amber-500/25"
+                    : "border border-slate-700/80 bg-slate-950/70 text-slate-200 hover:border-amber-500/50 hover:text-amber-300"
+                }`
+              }
+            >
+              <AiOutlineUserAdd size={19} />
+              <span className="hidden sm:inline">Register</span>
+            </NavLink>
+          </div>
+        )}
+      </div>
+    </nav>
   );
 };
 

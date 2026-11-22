@@ -24,13 +24,13 @@ const GenreList = () => {
   const handleCreateGenre = async (e) => {
     e.preventDefault();
 
-    if (!name) {
+    if (!name.trim()) {
       toast.error("Genre name is required");
       return;
     }
 
     try {
-      const result = await createGenre({ name }).unwrap();
+      const result = await createGenre({ name: name.trim() }).unwrap();
 
       if (result.error) {
         toast.error(result.error);
@@ -41,14 +41,16 @@ const GenreList = () => {
       }
     } catch (error) {
       console.error(error);
-      toast.error("Creating genre failed, try again.");
+      toast.error(
+        error?.data?.message || "Creating genre failed, try again."
+      );
     }
   };
 
   const handleUpdateGenre = async (e) => {
     e.preventDefault();
 
-    if (!updateGenre) {
+    if (!updatingName.trim()) {
       toast.error("Genre name is required");
       return;
     }
@@ -57,7 +59,7 @@ const GenreList = () => {
       const result = await updateGenre({
         id: selectedGenre._id,
         updateGenre: {
-          name: updatingName,
+          name: updatingName.trim(),
         },
       }).unwrap();
 
@@ -72,62 +74,122 @@ const GenreList = () => {
       }
     } catch (error) {
       console.error(error);
+      toast.error(
+        error?.data?.message || "Updating genre failed, try again."
+      );
     }
   };
 
   const handleDeleteGenre = async () => {
+    if (!selectedGenre?._id) return;
+
     try {
       const result = await deleteGenre(selectedGenre._id).unwrap();
 
       if (result.error) {
         toast.error(result.error);
       } else {
-        toast.success(`${result.name} is deleted.`);
+        toast.success(`${result.name || selectedGenre.name} is deleted.`);
         refetch();
         setSelectedGenre(null);
+        setUpdatingName("");
         setModalVisible(false);
       }
     } catch (error) {
       console.error(error);
-      toast.error("Genre deletion failed. Tray again.");
+      toast.error(
+        error?.data?.message || "Genre deletion failed. Try again."
+      );
     }
   };
 
+  const handleOpenEditModal = (genre) => {
+    setSelectedGenre(genre);
+    setUpdatingName(genre.name);
+    setModalVisible(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalVisible(false);
+    setSelectedGenre(null);
+    setUpdatingName("");
+  };
+
   return (
-    <div className="ml-[10rem] flex flex-col md:flex-row">
-      <div className="md:w-3/4 p-3">
-        <h1 className="h-12">Manage Genres</h1>
-        <GenreForm
-          value={name}
-          setValue={setName}
-          handleSubmit={handleCreateGenre}
-        />
+    <div className="min-h-screen bg-slate-950 text-slate-100">
+      <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+        {/* Page Header */}
+        <div className="mb-8 flex flex-col gap-3 border-b border-slate-800/80 pb-6 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
+              Manage Genres
+            </h1>
+            <p className="mt-1 text-sm text-slate-400">
+              Create new categories or click an existing genre pill to rename or delete it.
+            </p>
+          </div>
 
-        <br />
-
-        <div className="flex flex-wrap">
-          {genres?.map((genre) => (
-            <div key={genre._id}>
-              <button
-                className="bg-white border border-teal-500 text-teal-500 py-2 px-4 rounded-lg m-3 hover:bg-teal-500 hover:text-white focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50"
-                onClick={() => {
-                  {
-                    setModalVisible(true);
-                    setSelectedGenre(genre);
-                    setUpdatingName(genre.name);
-                  }
-                }}
-              >
-                {genre.name}
-              </button>
-            </div>
-          ))}
+          <div className="inline-flex w-fit items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-4 py-1.5 text-sm font-semibold text-amber-400">
+            <span>Total Genres</span>
+            <span className="rounded-full bg-amber-500/20 px-2 py-0.5 text-xs text-amber-300">
+              {genres?.length ?? 0}
+            </span>
+          </div>
         </div>
 
-        <Modal isOpen={modalVisible} onClose={() => setModalVisible(false)}>
+        <div className="space-y-8">
+          {/* Create Genre Form */}
+          <GenreForm
+            value={name}
+            setValue={setName}
+            handleSubmit={handleCreateGenre}
+            buttonText="Create Genre"
+          />
+
+          {/* Existing Genres List */}
+          <section className="rounded-2xl border border-slate-800/80 bg-slate-900/40 p-5 sm:p-6">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-base font-semibold tracking-tight text-white">
+                Existing Genres
+              </h2>
+              <span className="text-xs text-slate-400">
+                Click a genre to edit
+              </span>
+            </div>
+
+            {genres && genres.length > 0 ? (
+              <div className="flex flex-wrap gap-2.5">
+                {genres.map((genre) => (
+                  <button
+                    key={genre._id}
+                    type="button"
+                    onClick={() => handleOpenEditModal(genre)}
+                    className="inline-flex items-center gap-2 rounded-xl border border-slate-700/80 bg-slate-950/80 px-4 py-2 text-sm font-medium text-slate-200 transition-all duration-150 hover:-translate-y-0.5 hover:border-amber-500/60 hover:bg-amber-500/10 hover:text-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-500/40"
+                  >
+                    <span>{genre.name}</span>
+                    <span className="text-xs text-slate-500">Edit</span>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div className="rounded-xl border border-dashed border-slate-800 bg-slate-950/50 py-10 text-center">
+                <p className="text-sm text-slate-400">
+                  No genres added yet. Use the form above to create your first genre.
+                </p>
+              </div>
+            )}
+          </section>
+        </div>
+
+        {/* Edit / Delete Modal */}
+        <Modal
+          isOpen={modalVisible}
+          onClose={handleCloseModal}
+          title={selectedGenre ? `Edit "${selectedGenre.name}"` : "Edit Genre"}
+        >
           <GenreForm
             value={updatingName}
-            setValue={(value) => setUpdatingName(value)}
+            setValue={setUpdatingName}
             handleSubmit={handleUpdateGenre}
             buttonText="Update"
             handleDelete={handleDeleteGenre}
