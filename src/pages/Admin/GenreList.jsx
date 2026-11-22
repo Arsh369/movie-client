@@ -5,11 +5,10 @@ import {
   useDeleteGenreMutation,
   useFetchGenresQuery,
 } from "../../redux/api/genre";
-
 import { toast } from "react-toastify";
 import GenreForm from "../../component/GenreForm";
 import Modal from "../../component/Modal";
-import GoBackButton from "../../component/GoBackButton";
+import Sidebar from "./Dashboard/Sidebar/Sidebar";
 
 const GenreList = () => {
   const { data: genres, refetch } = useFetchGenresQuery();
@@ -117,10 +116,14 @@ const GenreList = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100">
+    <div className="flex min-h-screen flex-col md:flex-row">
+      <aside className="w-full shrink-0 md:w-64">
+        <Sidebar />
+      </aside>
+      <div className="min-w-0 flex-1 p-4">
+            <div className="min-h-screen bg-slate-950 text-slate-100">
       <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Page Header */}
-        <GoBackButton/>
         <div className="mb-8 flex flex-col gap-3 border-b border-slate-800/80 pb-6 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
@@ -197,6 +200,8 @@ const GenreList = () => {
             handleDelete={handleDeleteGenre}
           />
         </Modal>
+      </div>
+    </div>
       </div>
     </div>
   );
